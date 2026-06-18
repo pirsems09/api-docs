@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "/cpo",
+            "url": "http://localhost:8080",
             "description": "MayaCore gateway-relative base path"
         }
     ],
