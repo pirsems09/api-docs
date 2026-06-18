@@ -10,7 +10,7 @@
     },
     "servers": [
         {
-            "url": "http://localhost:8080/cpo/swagger-ui",
+            "url": "http://localhost:8080/cpo",
             "description": "MayaCore gateway-relative base path"
         }
     ],
