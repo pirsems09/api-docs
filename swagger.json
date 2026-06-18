@@ -1,0 +1,1767 @@
+{
+    "openapi": "3.1.0",
+    "info": {
+        "title": "CPO Service API",
+        "description": "Collection Portal backend (cpo-service) — REST API replacing the legacy JSF/WebLogic CPO EAR.",
+        "license": {
+            "name": "Turkcell internal"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "/cpo",
+            "description": "MayaCore gateway-relative base path"
+        }
+    ],
+    "security": [
+        {
+            "mayacoreJwt": []
+        }
+    ],
+    "tags": [
+        {
+            "name": "blacklist",
+            "description": "Group blacklist + T-Legal query"
+        },
+        {
+            "name": "fps",
+            "description": "Flexible Payment System: general params, payments, auto-payment orders"
+        },
+        {
+            "name": "refunds",
+            "description": "Refund (iade) operations"
+        },
+        {
+            "name": "fcms",
+            "description": "Field collection management"
+        },
+        {
+            "name": "trace",
+            "description": "Customer contact / touch history"
+        },
+        {
+            "name": "cbo",
+            "description": "Collection back-office: invoices, payments, debt-sale"
+        },
+        {
+            "name": "sms",
+            "description": "SMS instruction configuration"
+        },
+        {
+            "name": "yts",
+            "description": "YTS court / legal follow-up"
+        },
+        {
+            "name": "cfo",
+            "description": "Customer financial operations"
+        },
+        {
+            "name": "btk",
+            "description": "BTK regulator TCKN debt query"
+        },
+        {
+            "name": "customers",
+            "description": "Customer search & landing"
+        },
+        {
+            "name": "billing",
+            "description": "Invoices, dunning fees, complaints, open/close history"
+        }
+    ],
+    "paths": {
+        "/cpo/v1/fps/payments": {
+            "post": {
+                "tags": [
+                    "fps"
+                ],
+                "summary": "Make an advance/invoice/auto payment (Teyit-gated)",
+                "operationId": "pay",
+                "parameters": [
+                    {
+                        "name": "X-Confirmation-Token",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/fps/payments/{id}/cancel": {
+            "post": {
+                "tags": [
+                    "fps"
+                ],
+                "summary": "Cancel a payment (Teyit-gated)",
+                "operationId": "cancelPayment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "X-Confirmation-Token",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "Idempotency-Key",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/PaymentRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/fps/auto-payment-orders/{id}/cancel": {
+            "post": {
+                "tags": [
+                    "fps"
+                ],
+                "summary": "Cancel an auto-payment order (CANCEL_AUTO_PAYMENT_COLL, Teyit-gated)",
+                "operationId": "cancelAutoPayment",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int64"
+                        }
+                    },
+                    {
+                        "name": "X-Confirmation-Token",
+                        "in": "header",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/AutoPaymentCancelRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PaymentResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/btk/debt-queries": {
+            "post": {
+                "tags": [
+                    "btk"
+                ],
+                "summary": "Query debt/refund/YTS info for a TCKN",
+                "operationId": "queryDebt",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/DebtQueryRequest"
+                            }
+                        }
+                    },
+                    "required": true
+                },
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/DebtQueryResult"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/yts": {
+            "get": {
+                "tags": [
+                    "yts"
+                ],
+                "summary": "YTS court / legal follow-up (scaffold)",
+                "operationId": "query",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/trace": {
+            "get": {
+                "tags": [
+                    "trace"
+                ],
+                "summary": "Customer contact / touch history (scaffold)",
+                "operationId": "query_1",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/sms": {
+            "get": {
+                "tags": [
+                    "sms"
+                ],
+                "summary": "SMS instruction configuration (scaffold)",
+                "operationId": "query_2",
+                "parameters": [
+                    {
+                        "name": "msisdn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/refunds": {
+            "get": {
+                "tags": [
+                    "refunds"
+                ],
+                "summary": "Refund (iade) operations (scaffold)",
+                "operationId": "query_3",
+                "parameters": [
+                    {
+                        "name": "msisdn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/fps/general-params": {
+            "get": {
+                "tags": [
+                    "fps"
+                ],
+                "summary": "Suitable general params by contractId/networkOperator (ncst ignored per FPS contract)",
+                "operationId": "getGeneralParams",
+                "parameters": [
+                    {
+                        "name": "contractId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    {
+                        "name": "ncst",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "networkOperator",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/GeneralParamByChStatus"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/fps/auto-payment-orders": {
+            "get": {
+                "tags": [
+                    "fps"
+                ],
+                "summary": "Auto-payment orders by MSISDN",
+                "operationId": "getAutoPaymentOrders",
+                "parameters": [
+                    {
+                        "name": "msisdn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "activeOnly",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseAutoPaymentOrder"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/fcms": {
+            "get": {
+                "tags": [
+                    "fcms"
+                ],
+                "summary": "Field collection management (scaffold)",
+                "operationId": "query_4",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/customers/{contractIdentifierValue}": {
+            "get": {
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Customer landing information by MSISDN/contract identifier",
+                "operationId": "getCustomer",
+                "parameters": [
+                    {
+                        "name": "contractIdentifierValue",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    {
+                        "name": "ncst",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomerInformationResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/customers/{contractIdentifierValue}/summary": {
+            "get": {
+                "tags": [
+                    "customers"
+                ],
+                "summary": "Customer landing/contact summary (legacy MainPageBean)",
+                "operationId": "getSummary",
+                "parameters": [
+                    {
+                        "name": "contractIdentifierValue",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    {
+                        "name": "ncst",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/CustomerInformationResponse"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/cfo/operations": {
+            "get": {
+                "tags": [
+                    "cfo"
+                ],
+                "summary": "CFO operations by customerId (scaffold)",
+                "operationId": "getOperations",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/cbo/payments": {
+            "get": {
+                "tags": [
+                    "cbo"
+                ],
+                "summary": "CBO payments by MSISDN",
+                "operationId": "getPayments",
+                "parameters": [
+                    {
+                        "name": "msisdn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseCboPayment"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/cbo/invoices": {
+            "get": {
+                "tags": [
+                    "cbo"
+                ],
+                "summary": "CBO invoices by MSISDN (installment invoices included)",
+                "operationId": "getInvoices",
+                "parameters": [
+                    {
+                        "name": "msisdn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseCboInvoice"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/cbo/debt-sale": {
+            "get": {
+                "tags": [
+                    "cbo"
+                ],
+                "summary": "Debt-sale (alacak satışı) invoices by MSISDN",
+                "operationId": "getDebtSale",
+                "parameters": [
+                    {
+                        "name": "msisdn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DebtSaleInvoice"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/blacklist": {
+            "get": {
+                "tags": [
+                    "blacklist"
+                ],
+                "summary": "Group blacklist + T-Legal query (scaffold)",
+                "operationId": "query_5",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "type": "object",
+                                        "additionalProperties": {
+                                            "type": "object"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/billing/open-close-history": {
+            "get": {
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Open/close history by coId",
+                "operationId": "getOpenCloseHistory",
+                "parameters": [
+                    {
+                        "name": "coId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseOpenCloseEvent"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/billing/invoices": {
+            "get": {
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Open invoices by MSISDN",
+                "operationId": "getOpenInvoices",
+                "parameters": [
+                    {
+                        "name": "msisdn",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "minLength": 1
+                        }
+                    },
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    },
+                    {
+                        "name": "size",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "format": "int32"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/PageResponseOpenInvoice"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/billing/invoices/{ohxact}/complaints": {
+            "get": {
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Complaint history for an invoice (ohxact)",
+                "operationId": "getComplaints",
+                "parameters": [
+                    {
+                        "name": "ohxact",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/Complaint"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/cpo/v1/billing/dunning-fees": {
+            "get": {
+                "tags": [
+                    "billing"
+                ],
+                "summary": "Dunning fees by customerId (SYSADM.FN_GET_DUNNING_FEE)",
+                "operationId": "getDunningFees",
+                "parameters": [
+                    {
+                        "name": "customerId",
+                        "in": "query",
+                        "required": true,
+                        "schema": {
+                            "type": "number"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/DunningFee"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "PaymentRequest": {
+                "type": "object",
+                "properties": {
+                    "type": {
+                        "type": "string",
+                        "enum": [
+                            "ADVANCE",
+                            "INVOICE",
+                            "AUTO"
+                        ]
+                    },
+                    "msisdn": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "currency": {
+                        "type": "string"
+                    },
+                    "branch": {
+                        "type": "string"
+                    },
+                    "city": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "teller": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "amount",
+                    "type"
+                ]
+            },
+            "PaymentResult": {
+                "type": "object",
+                "properties": {
+                    "successful": {
+                        "type": "boolean"
+                    },
+                    "responseCode": {
+                        "type": "string"
+                    },
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "AutoPaymentCancelRequest": {
+                "type": "object",
+                "properties": {
+                    "bankId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "companyId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "msisdn": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "branch": {
+                        "type": "string"
+                    },
+                    "stan": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "city": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "teller": {
+                        "type": "string"
+                    }
+                },
+                "required": [
+                    "bankId",
+                    "msisdn"
+                ]
+            },
+            "DebtQueryRequest": {
+                "type": "object",
+                "properties": {
+                    "tckno": {
+                        "type": "string",
+                        "minLength": 1,
+                        "pattern": "\\d{11}"
+                    },
+                    "birthYear": {
+                        "type": "string",
+                        "pattern": "\\d{4}"
+                    },
+                    "cityCode": {
+                        "type": "string",
+                        "pattern": "\\d{1,3}"
+                    }
+                }
+            },
+            "Contract": {
+                "type": "object",
+                "properties": {
+                    "nameSurname": {
+                        "type": "string"
+                    },
+                    "msisdn": {
+                        "type": "string"
+                    },
+                    "customerId": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "statusDesc": {
+                        "type": "string"
+                    },
+                    "startDate": {
+                        "type": "string"
+                    },
+                    "endDate": {
+                        "type": "string"
+                    },
+                    "debtAmount": {
+                        "type": "number"
+                    },
+                    "openInvoiceCount": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "repaymentInfo": {
+                        "$ref": "#/components/schemas/RepaymentInfo"
+                    },
+                    "ytsInfo": {
+                        "$ref": "#/components/schemas/YtsInfo"
+                    }
+                }
+            },
+            "DebtQueryResult": {
+                "type": "object",
+                "properties": {
+                    "tckNo": {
+                        "type": "string"
+                    },
+                    "trxLogId": {
+                        "type": "string"
+                    },
+                    "msisdnList": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Contract"
+                        }
+                    },
+                    "repaymentList": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Repayment"
+                        }
+                    },
+                    "totalDebtAmount": {
+                        "type": "number"
+                    },
+                    "totalYtsAmount": {
+                        "type": "number"
+                    },
+                    "totalRepaymentAmount": {
+                        "type": "number"
+                    },
+                    "followupList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "lawOfficeList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    },
+                    "warnMessage": {
+                        "type": "string"
+                    }
+                }
+            },
+            "Repayment": {
+                "type": "object",
+                "properties": {
+                    "msisdn": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "group": {
+                        "type": "string"
+                    },
+                    "groupType": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "statusDesc": {
+                        "type": "string"
+                    }
+                }
+            },
+            "RepaymentInfo": {
+                "type": "object",
+                "properties": {
+                    "totalRepaymentAmount": {
+                        "type": "number"
+                    },
+                    "repaymentList": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Repayment"
+                        }
+                    }
+                }
+            },
+            "Yts": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "string"
+                    },
+                    "lawOffice": {
+                        "type": "string"
+                    },
+                    "followedIdList": {
+                        "type": "array",
+                        "items": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "YtsInfo": {
+                "type": "object",
+                "properties": {
+                    "ytsAmount": {
+                        "type": "number"
+                    },
+                    "ytsList": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Yts"
+                        }
+                    }
+                }
+            },
+            "GeneralParam": {
+                "type": "object",
+                "properties": {
+                    "generalParamId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "packageName": {
+                        "type": "string"
+                    },
+                    "profileId": {
+                        "type": "integer"
+                    },
+                    "controlParamId": {
+                        "type": "integer"
+                    },
+                    "actionParamId": {
+                        "type": "integer"
+                    },
+                    "installmentParamId": {
+                        "type": "integer"
+                    },
+                    "invoiceParamId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "networkOperatorName": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    }
+                }
+            },
+            "GeneralParamByChStatus": {
+                "type": "object",
+                "properties": {
+                    "chstatus": {
+                        "type": "string"
+                    },
+                    "suitableGeneralParamList": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/GeneralParam"
+                        }
+                    }
+                }
+            },
+            "AutoPaymentOrder": {
+                "type": "object",
+                "properties": {
+                    "bankId": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "bankName": {
+                        "type": "string"
+                    },
+                    "branchId": {
+                        "type": "string"
+                    },
+                    "msisdn": {
+                        "type": "string"
+                    },
+                    "nameSurname": {
+                        "type": "string"
+                    },
+                    "apayType": {
+                        "type": "string"
+                    },
+                    "apDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "apStatus": {
+                        "type": "string"
+                    },
+                    "tcellStatus": {
+                        "type": "string"
+                    },
+                    "reasonName": {
+                        "type": "string"
+                    },
+                    "cancelDate": {
+                        "type": "string",
+                        "format": "date"
+                    }
+                }
+            },
+            "PageResponseAutoPaymentOrder": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/AutoPaymentOrder"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "CustomerInformationResponse": {
+                "type": "object",
+                "properties": {
+                    "contractIdentifierValue": {
+                        "type": "string"
+                    },
+                    "customerSegmentDesc": {
+                        "type": "string"
+                    },
+                    "lineStatusDesc": {
+                        "type": "string"
+                    },
+                    "subsStatus": {
+                        "type": "string"
+                    },
+                    "subsStatusDescription": {
+                        "type": "string"
+                    },
+                    "installmentStatus": {
+                        "type": "string"
+                    },
+                    "blacklistStatus": {
+                        "type": "string"
+                    },
+                    "ncstInfo": {
+                        "type": "string"
+                    },
+                    "ytsStatus": {
+                        "type": "string"
+                    },
+                    "autoPaymentStatus": {
+                        "type": "string"
+                    },
+                    "sp2dGiveBackStatus": {
+                        "type": "string"
+                    }
+                }
+            },
+            "CboPayment": {
+                "type": "object",
+                "properties": {
+                    "originalInvoiceId": {
+                        "type": "number"
+                    },
+                    "contractIdentifierValue": {
+                        "type": "string"
+                    },
+                    "paymentAmount": {
+                        "type": "number"
+                    },
+                    "paymentOpenAmount": {
+                        "type": "number"
+                    },
+                    "paymentDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "institutionCode": {
+                        "type": "string"
+                    },
+                    "paymentStatusId": {
+                        "type": "number"
+                    },
+                    "customerId": {
+                        "type": "number"
+                    }
+                }
+            },
+            "PageResponseCboPayment": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CboPayment"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "CboInvoice": {
+                "type": "object",
+                "properties": {
+                    "invoiceId": {
+                        "type": "number"
+                    },
+                    "invoiceTypeId": {
+                        "type": "string"
+                    },
+                    "docNo": {
+                        "type": "number"
+                    },
+                    "customerId": {
+                        "type": "number"
+                    },
+                    "dueDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "invoiceDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "invoiceAmount": {
+                        "type": "number"
+                    },
+                    "invoiceAmountDoc": {
+                        "type": "number"
+                    },
+                    "invoiceOpenAmount": {
+                        "type": "number"
+                    },
+                    "contractIdentifierValue": {
+                        "type": "string"
+                    },
+                    "custCode": {
+                        "type": "string"
+                    },
+                    "ncst": {
+                        "type": "number"
+                    },
+                    "complaint": {
+                        "type": "string"
+                    },
+                    "shortDesc": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PageResponseCboInvoice": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/CboInvoice"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "DebtSaleInvoice": {
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "contractIdentifierValue": {
+                        "type": "string"
+                    },
+                    "soldTo": {
+                        "type": "string"
+                    },
+                    "companyContactInfo": {
+                        "type": "string"
+                    },
+                    "invoiceId": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "ncst": {
+                        "type": "integer",
+                        "format": "int64"
+                    },
+                    "invoiceDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "amount": {
+                        "type": "number"
+                    },
+                    "saleStatus": {
+                        "type": "string"
+                    }
+                }
+            },
+            "OpenCloseEvent": {
+                "type": "object",
+                "properties": {
+                    "coId": {
+                        "type": "number"
+                    },
+                    "aehCode": {
+                        "type": "number"
+                    },
+                    "ticklerHdr": {
+                        "type": "string"
+                    },
+                    "instance": {
+                        "type": "string"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "aeDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "processed": {
+                        "type": "string"
+                    },
+                    "aeUser": {
+                        "type": "string"
+                    },
+                    "module": {
+                        "type": "string"
+                    },
+                    "eventDesc": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PageResponseOpenCloseEvent": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OpenCloseEvent"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "OpenInvoice": {
+                "type": "object",
+                "properties": {
+                    "ind": {
+                        "type": "number"
+                    },
+                    "invoiceTypeDesc": {
+                        "type": "string"
+                    },
+                    "paymentPeriod": {
+                        "type": "string"
+                    },
+                    "invoiceNo": {
+                        "type": "number"
+                    },
+                    "dueDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "invoiceAmount": {
+                        "type": "number"
+                    }
+                }
+            },
+            "PageResponseOpenInvoice": {
+                "type": "object",
+                "properties": {
+                    "content": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/OpenInvoice"
+                        }
+                    },
+                    "page": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "size": {
+                        "type": "integer",
+                        "format": "int32"
+                    },
+                    "totalElements": {
+                        "type": "integer",
+                        "format": "int64"
+                    }
+                }
+            },
+            "Complaint": {
+                "type": "object",
+                "properties": {
+                    "seqNo": {
+                        "type": "number"
+                    },
+                    "id": {
+                        "type": "number"
+                    },
+                    "idDesc": {
+                        "type": "string"
+                    },
+                    "setUnsetSeqNo": {
+                        "type": "number"
+                    },
+                    "reasonId": {
+                        "type": "number"
+                    },
+                    "reasonDescription": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "processDate": {
+                        "type": "string",
+                        "format": "date-time"
+                    },
+                    "objStartDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "setUnsetDate": {
+                        "type": "string",
+                        "format": "date"
+                    },
+                    "status": {
+                        "type": "string"
+                    },
+                    "username": {
+                        "type": "string"
+                    },
+                    "channelName": {
+                        "type": "string"
+                    }
+                }
+            },
+            "DunningFee": {
+                "type": "object",
+                "properties": {
+                    "segment": {
+                        "type": "string"
+                    },
+                    "description": {
+                        "type": "string"
+                    },
+                    "amount": {
+                        "type": "number"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "mayacoreJwt": {
+                "type": "http",
+                "scheme": "bearer",
+                "bearerFormat": "JWT"
+            }
+        }
+    }
+}
